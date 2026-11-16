@@ -28,7 +28,7 @@ internal enum UpdateStatus : byte
 /// </summary>
 internal sealed class Updater : IDisposable
 {
-    private const string LatestRelease = "https://api.github.com/repos/FPNDev/wpods/releases/latest";
+    private const string LatestRelease = "https://api.github.com/repos/ajjs1ajjs/wpods/releases/latest";
     private const string AssetName = "WPods-Setup.exe";
     private const string StagedValue = "UpdateStaged";      // "version|file|sha256"
     private const string AttemptsValue = "UpdateAttempts";  // "version|count"
