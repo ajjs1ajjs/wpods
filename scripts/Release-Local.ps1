@@ -21,19 +21,28 @@ function Fail([string]$Message) {
     exit 1
 }
 
+function Invoke-Native([scriptblock]$Block) {
+    $prev = $ErrorActionPreference
+    $ErrorActionPreference = 'Continue'
+    try {
+        & $Block
+        return $LASTEXITCODE
+    } finally {
+        $ErrorActionPreference = $prev
+    }
+}
+
 foreach ($tool in @('git', 'gh', 'dotnet', 'node', 'npm')) {
     if (-not (Get-Command $tool -ErrorAction SilentlyContinue)) {
         Fail "$tool not found in PATH"
     }
 }
-gh auth status 2>&1 | Out-Null
-if ($LASTEXITCODE -ne 0) { Fail 'gh not authenticated (run gh auth login)' }
+if ((Invoke-Native { gh auth status 2>&1 | Out-Null }) -ne 0) { Fail 'gh not authenticated (run gh auth login)' }
 
 if (-not $SkipPublish) {
     if (git status --porcelain) { Fail 'working tree is dirty - commit or stash first' }
     if ((git branch --show-current) -ne 'main') { Fail 'release must run from main' }
-    git fetch origin main --tags
-    if ($LASTEXITCODE -ne 0) { Fail 'git fetch origin failed' }
+    if ((Invoke-Native { git fetch origin main --tags }) -ne 0) { Fail 'git fetch origin failed' }
     $div = (git rev-list --left-right --count origin/main...HEAD).Trim() -split '\s+'
     if ($div.Count -ne 2 -or $div[0] -ne '0' -or $div[1] -ne '0') {
         Fail 'main must match origin/main before release'
@@ -74,14 +83,21 @@ if (-not $SkipPublish -and $next -ne $currentVer) {
 
 $nativeBin = Join-Path $RepoRoot '.build\native\bin'
 $hasNative = Test-Path (Join-Path $nativeBin 'wpods_native.dll')
-$pwsh = (Get-Command pwsh -ErrorAction SilentlyContinue)?.Source
-if (-not $pwsh) { $pwsh = (Get-Process -Id $PID).Path }
-if ($hasNative) {
-    & $pwsh -NoProfile -File $buildPs1 -SkipNative
-} else {
-    & $pwsh -NoProfile -File $buildPs1
+$pwshCmd = Get-Command pwsh -ErrorAction SilentlyContinue
+$shellExe = if ($pwshCmd) { $pwshCmd.Source } else { (Get-Process -Id $PID).Path }
+$prevPref = $ErrorActionPreference
+$ErrorActionPreference = 'Continue'
+try {
+    if ($hasNative) {
+        & $shellExe -NoProfile -File $buildPs1 -SkipNative
+    } else {
+        & $shellExe -NoProfile -File $buildPs1
+    }
+    $buildExit = $LASTEXITCODE
+} finally {
+    $ErrorActionPreference = $prevPref
 }
-if ($LASTEXITCODE -ne 0) { Fail "build.ps1 failed ($LASTEXITCODE)" }
+if ($buildExit -ne 0) { Fail "build.ps1 failed ($buildExit)" }
 
 $setup = Join-Path $RepoRoot 'dist\WPods-Setup.exe'
 if (-not (Test-Path $setup)) { Fail "Missing $setup" }
@@ -95,17 +111,16 @@ if ($SkipPublish) {
     exit 0
 }
 
-git tag -a $tag -m "WPods $tag (local build)"
-if ($LASTEXITCODE -ne 0) { Fail "git tag $tag failed" }
-git push origin main --tags
-if ($LASTEXITCODE -ne 0) { Fail 'git push failed' }
+if ((Invoke-Native { git tag -a $tag -m "WPods $tag (local build)" }) -ne 0) { Fail "git tag $tag failed" }
+if ((Invoke-Native { git push origin main --tags }) -ne 0) { Fail 'git push failed' }
 
 $notes = @"
 Local build of WPods $tag (fork of FPNDev/wpods).
 
-Includes MediaTek MT7921 combined USB Bluetooth adapter support (`WinUsb.cs`, `RadioLink.cs`) and fork updater endpoint (`ajjs1ajjs/wpods`).
-Unsigned local build (`SHA256SUMS.txt` included).
+Includes MediaTek MT7921 combined USB Bluetooth adapter support (``WinUsb.cs``, ``RadioLink.cs``) and fork updater endpoint (``ajjs1ajjs/wpods``).
+Unsigned local build (``SHA256SUMS.txt`` included).
 "@
-gh release create $tag $setup $sumsPath -R $RepoSlug --title $tag --notes $notes
-if ($LASTEXITCODE -ne 0) { Fail "gh release create $tag failed" }
+if ((Invoke-Native { gh release create $tag $setup $sumsPath -R $RepoSlug --title $tag --notes $notes }) -ne 0) {
+    Fail "gh release create $tag failed"
+}
 Write-Host "Published $RepoSlug $tag"
