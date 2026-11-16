@@ -167,13 +167,20 @@ internal sealed unsafe partial class WinUsbDevice : IDisposable
         _realInterfaces = [.. numbers];
         byte[] c = ConfigDescriptor;
         var o = new List<byte>(c.AsSpan(0, Math.Min(9, c.Length)).ToArray());
+        // Preserve composite IAD layout when multiple interfaces exist so Windows loads usbccgp and exposes &MI_00
+        // (required by vendor filter drivers such as MediaTek mtkbtfilter.inf).
+        bool keepComposite = _realInterfaces.Length > 1;
+        if (keepComposite)
+        {
+            o.AddRange([8, 0x0B, 0, (byte)_realInterfaces.Length, 0xE0, 0x01, 0x01, 0]);
+        }
         int current = -1;
         for (int at = c[0]; at + 2 <= c.Length && c[at] > 0; at += c[at])
         {
             byte type = c[at + 1];
             if (type == 0x0B)
             {
-                continue; // interface association: the virtual device is a single function
+                continue; // interface association: rebuilt above when needed
             }
             if (type == 0x04)
             {
@@ -195,12 +202,21 @@ internal sealed unsafe partial class WinUsbDevice : IDisposable
         config[4] = (byte)_realInterfaces.Length;
         config[7] &= unchecked((byte)~0x20); // no remote wakeup over USB/IP
         ConfigDescriptor = config;
-        DeviceDescriptor[4] = 0xE0; // wireless controller / RF / Bluetooth programming interface
-        DeviceDescriptor[5] = 0x01;
-        DeviceDescriptor[6] = 0x01;
+        if (keepComposite)
+        {
+            DeviceDescriptor[4] = 0xEF; // Miscellaneous / Common Class / IAD composite
+            DeviceDescriptor[5] = 0x02;
+            DeviceDescriptor[6] = 0x01;
+        }
+        else
+        {
+            DeviceDescriptor[4] = 0xE0; // wireless controller / RF / Bluetooth programming interface
+            DeviceDescriptor[5] = 0x01;
+            DeviceDescriptor[6] = 0x01;
+        }
         DeviceDescriptor[17] = 1;
         IsFunction = true;
-        Log.Info("usb", $"function of a combined device: interfaces {string.Join(",", _realInterfaces)} shown as 0..{_realInterfaces.Length - 1}");
+        Log.Info("usb", $"function of a combined device: interfaces {string.Join(",", _realInterfaces)} shown as 0..{_realInterfaces.Length - 1}{(keepComposite ? " (composite IAD)" : "")}");
     }
 
     /// <summary>Win32 errors that mean the device is gone (unplugged, re-enumerated, or taken by another driver).</summary>
@@ -253,9 +269,24 @@ internal sealed unsafe partial class WinUsbDevice : IDisposable
 
     public int Control(ulong setup, byte[] buffer, out uint got)
     {
+        nint iface = FirstInterface;
+        byte recipient = (byte)(setup & 0x1F);
+        if (recipient == 1)
+        {
+            byte targetIf = (byte)(setup >> 32);
+            int idx = IsFunction ? Array.IndexOf(_realInterfaces, targetIf) : targetIf;
+            if (idx >= 0 && idx < _interfaces.Count)
+            {
+                iface = _interfaces[idx];
+            }
+        }
+        else if (recipient == 2 && _pipes.TryGetValue((byte)(setup >> 32), out nint epIface))
+        {
+            iface = epIface;
+        }
         fixed (byte* b = buffer)
         {
-            return WinUsb_ControlTransfer(FirstInterface, setup, b, (uint)buffer.Length, out got, 0) ? 0 : Marshal.GetLastPInvokeError();
+            return WinUsb_ControlTransfer(iface, setup, b, (uint)buffer.Length, out got, 0) ? 0 : Marshal.GetLastPInvokeError();
         }
     }
 

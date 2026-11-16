@@ -534,6 +534,19 @@ internal sealed class RadioLink : IDisposable
             setup = (setup & ~0x000000FF00000000UL) | ((ulong)_device.RealInterface(index & 0xFF) << 32);
         }
         byte[] buffer = u.In ? new byte[u.Length] : u.Data[8..];
+        if (!u.In && rt == 0x42 && req == 0x02)
+        {
+            // WinUSB rejects bmRequestType=0x42 (Endpoint recipient) when wIndex is a 16-bit register address rather than
+            // an open endpoint (e.g. MediaTek MTK_EP_RST_OPT 0x74011890), and rewriting to 0x40 stalls the chip.
+            Log.Info("radio", $"control rt=0x{rt:X2} req=0x{req:X2} v=0x{value:X4} i=0x{index:X4} data={Convert.ToHexString(buffer)}: acknowledged");
+            return (0, (uint)buffer.Length, []);
+        }
+        if (u.In && rt == 0xC2 && req == 0x01)
+        {
+            // MediaTek UHW register read via 0xC2/0x01 hangs on WinUSB; translate to 0xC0/0x63 which reads the same
+            // 32-bit register address (wValue:wIndex) cleanly via WinUSB.
+            setup = (setup & ~0xFFFFUL) | 0x63C0UL;
+        }
         int e = _device.Control(setup, buffer, out uint got);
         if (e != 0 && rt == 0x80 && req == 0x06 && value == 0x0300 && _device.Serial is not null)
         {
