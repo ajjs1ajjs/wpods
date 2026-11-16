@@ -25,8 +25,8 @@ function Invoke-Native([scriptblock]$Block) {
     $prev = $ErrorActionPreference
     $ErrorActionPreference = 'Continue'
     try {
-        & $Block
-        return $LASTEXITCODE
+        & $Block | Out-Host
+        return [int]$LASTEXITCODE
     } finally {
         $ErrorActionPreference = $prev
     }
