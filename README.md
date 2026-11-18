@@ -2,12 +2,13 @@
 
 <h1 align="center">WPods</h1>
 
-<p align="center">A free, open-source app that brings your AirPods' features to Windows 11.</p>
+<p align="center">A free, open-source app that brings your AirPods' features to Windows 11.<br>
+<sub>Independent fork of <a href="https://github.com/FPNDev/wpods">FPNDev/wpods</a> (GPL-3.0), modified and released from <a href="https://github.com/ajjs1ajjs/wpods">ajjs1ajjs/wpods</a> (2026-11-18).</sub></p>
 
 <div align="center">
 
 [![License: GPL-3.0](https://img.shields.io/badge/license-GPL--3.0-blue.svg)](LICENSE)
-[![Latest release](https://img.shields.io/github/v/release/FPNDev/wpods)](https://github.com/FPNDev/wpods/releases/latest)
+[![Latest release](https://img.shields.io/github/v/release/ajjs1ajjs/wpods)](https://github.com/ajjs1ajjs/wpods/releases/latest)
 ![Windows 11 x64](https://img.shields.io/badge/Windows%2011-x64-0078D4)
 
 </div>
@@ -19,7 +20,7 @@
 > WPods is an independent project. It is not made, affiliated with, sponsored, endorsed or supported by Apple Inc. Apple product and feature names are used only to describe compatibility.
 
 <p align="center">
-  <a href="https://github.com/FPNDev/wpods/releases/latest"><b>Download</b></a> |
+  <a href="https://github.com/ajjs1ajjs/wpods/releases/latest"><b>Download</b></a> |
   <a href="#features"><b>Features</b></a> |
   <a href="#before-you-install"><b>Before you install</b></a> |
   <a href="#install"><b>Install</b></a> |
@@ -176,9 +177,9 @@ There are other projects for AirPods on Windows and beyond. Here is how they lin
 | Head gestures                              | No           | No                                                    | No                                                             | Yes (Android)                                         | No                                   |
 | Non-Apple earbuds                          | No           | Partial (Beats)                                       | Partial (Powerbeats Pro 2)                                     | No                                                    | Yes (Beats, Galaxy Buds, Sony, more) |
 
-\* Tested on AirPods Pro 2 only so far. Needs hearing set up on an iPhone or iPad first. WPods turns Hearing Aid and Media Assist on and off; it doesn't change the hearing settings themselves. Tried it on other AirPods? Please [open an issue](https://github.com/FPNDev/wpods/issues).
+\* Tested on AirPods Pro 2 only so far. Needs hearing set up on an iPhone or iPad first. WPods turns Hearing Aid and Media Assist on and off; it doesn't change the hearing settings themselves. Tried it on other AirPods? Please [open an issue](https://github.com/ajjs1ajjs/wpods/issues).
 
-Based on each project's README, website and source code as of 2026-10-26. If something is wrong, please [open an issue](https://github.com/FPNDev/wpods/issues).
+Based on each project's README, website and source code as of 2026-10-26. If something is wrong, please [open an issue](https://github.com/ajjs1ajjs/wpods/issues).
 
 ## Before you install
 
@@ -195,7 +196,7 @@ Based on each project's README, website and source code as of 2026-10-26. If som
 
 Other AirPods models and other Bluetooth adapters (Realtek, MediaTek, Qualcomm, Broadcom and others) are supported but haven't been tested yet. On some PCs the Bluetooth adapter is one part of a combined USB device. WPods supports these too, but they haven't been tested yet either.
 
-**Your adapter helps everyone.** Every Bluetooth adapter is a little different, so please tell us how WPods works with yours, even if everything just works: [send an adapter report](https://github.com/FPNDev/wpods/issues/new?template=adapter_report.yml). It takes two minutes and shows the next person that their adapter is safe to use.
+**Your adapter helps everyone.** Every Bluetooth adapter is a little different, so please tell us how WPods works with yours, even if everything just works: [send an adapter report](https://github.com/ajjs1ajjs/wpods/issues/new?template=adapter_report.yml). It takes two minutes and shows the next person that their adapter is safe to use.
 
 ### What Setup changes
 
@@ -210,7 +211,7 @@ Older versions of WPods needed Windows Test Mode and Secure Boot off. This versi
 
 ## Install
 
-1. **Download** `WPods-Setup.exe` from the [latest release](https://github.com/FPNDev/wpods/releases/latest).
+1. **Download** `WPods-Setup.exe` from the [latest release](https://github.com/ajjs1ajjs/wpods/releases/latest).
 2. **Run it.** Read and accept the terms. They explain the Bluetooth adapter takeover.
 3. **Choose your options:**
    - Create a desktop shortcut (off by default).
@@ -234,13 +235,13 @@ WPods speaks 45 languages:
 
 Arabic, Bangla, Bulgarian, Catalan, Chinese (Simplified; Traditional, Taiwan; Traditional, Hong Kong), Croatian, Czech, Danish, Dutch, English (US, UK, Australia, India), Finnish, French (France, Canada), German, Greek, Gujarati, Hebrew, Hindi, Hungarian, Indonesian, Italian, Japanese, Kannada, Kazakh, Korean, Lithuanian, Malay, Malayalam, Marathi, Norwegian Bokmal, Odia, Polish, Portuguese (Brazil, Portugal), Punjabi, Romanian, Slovak, Slovenian, Spanish (Spain, Latin America, US), Swedish, Tamil, Telugu, Thai, Turkish, Ukrainian, Urdu and Vietnamese.
 
-Arabic, Hebrew and Urdu use a right-to-left layout. Translations other than English and Ukrainian were made with AI help and have not been reviewed by native speakers yet. Spotted something off? Please [open an issue](https://github.com/FPNDev/wpods/issues).
+Arabic, Hebrew and Urdu use a right-to-left layout. Translations other than English and Ukrainian were made with AI help and have not been reviewed by native speakers yet. Spotted something off? Please [open an issue](https://github.com/ajjs1ajjs/wpods/issues).
 
 Choose "Same as Windows" or pick a language in WPods' Windows settings page. It switches right away.
 
 ## Help and feedback
 
-Found a bug, have an idea, or something doesn't work with your AirPods? Please [open an issue](https://github.com/FPNDev/wpods/issues/new/choose).
+Found a bug, have an idea, or something doesn't work with your AirPods? Please [open an issue](https://github.com/ajjs1ajjs/wpods/issues/new/choose).
 
 ### Reporting a problem
 

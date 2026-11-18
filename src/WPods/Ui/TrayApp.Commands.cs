@@ -29,7 +29,7 @@ internal sealed partial class TrayApp
     // Last micStage message per slot, replayed when the hidden main page shows again.
     private readonly string?[] _micStages = new string?[2];
 
-    private const string ReleasesUrl = "https://github.com/FPNDev/wpods/releases/";
+    private const string ReleasesUrl = "https://github.com/ajjs1ajjs/wpods/releases/";
 
     private void OnMainMessage(WebPane pane, PageMessage m)
     {

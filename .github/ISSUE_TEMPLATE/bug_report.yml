@@ -6,7 +6,7 @@ body:
     attributes:
       value: |
         Thanks for taking the time to report this! The details below help us find the cause quickly.
-        Not sure where to find something? See [Reporting a problem](https://github.com/FPNDev/wpods#reporting-a-problem) in the README.
+        Not sure where to find something? See [Reporting a problem](https://github.com/ajjs1ajjs/wpods#reporting-a-problem) in the README.
   - type: textarea
     id: what-happened
     attributes:
